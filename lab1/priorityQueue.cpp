@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ctime>
 #include <vector>
+#include <functional>
 
 using namespace std;
 
@@ -14,11 +15,7 @@ class PriorityQueue {
     PriorityQueue(){
     }
 
-    //c = current index
-    //p = parent index
     void enqueue(T item){
-        clock_t st, et;
-        st = clock();
         data.push_back(item);
         int c = data.size() - 1;
 
@@ -31,13 +28,9 @@ class PriorityQueue {
             data[c] = temp;
             c = p;
         }
-        et = clock();
-        cout << "Time taken to enqueue: " << (et - st)*0.001<< "ms" << endl;
     }
 
     T dequeue(){
-        clock_t st, et;
-        st = clock();
         int l = data.size() - 1;
         T fi = data[0];
         data[0] = data[l];
@@ -63,14 +56,31 @@ class PriorityQueue {
             data[c] = temp;
             p = c;
         }
-        et = clock();
-        cout << "Time taken to dequeue: " << (et - st)*0.001<< "ms" << endl;
         return fi;
     }
 };
 
+long long getTime(std::function<void()> f){
+    auto start = clock();
+    f();
+    auto end = clock();
+    long double duration = end - start;
+    return (duration/CLOCKS_PER_SEC) * 1000000000;
+}
+
 int main(){
     PriorityQueue<int> pq;
-    pq.enqueue(10);
-    cout << pq.dequeue();
+    auto enqueue = [&](){
+        for(int i = 0; i < 1000000; i++){
+            pq.enqueue(i);
+        }
+    };
+    auto dequeue = [&](){
+        for(int i = 0; i < 1000000; i++){
+            pq.dequeue();
+        }
+    };
+
+    cout << "Time taken to enqueue 1000000 elements: " << getTime(enqueue) << "ns" << endl;
+    cout << "Time taken to dequeue 1000000 elements: " << getTime(dequeue) << "ns" << endl;
 }

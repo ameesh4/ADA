@@ -1,49 +1,69 @@
 #include <iostream>
-#include <ctime>
-
+#include <chrono>
+#include <functional>
 using namespace std;
 
-
-template <typename T>
 class Stack{
-    T *data;
+    int *data;
     int top;
+    int size;
 
     public:
     Stack(int size){
-        data = new T[size];
+        this->size = size;
+        data = (int *)(calloc(this->size, sizeof(int)));
         top = 0;
     }
 
-    void push(T item){
-        clock_t st, et;
-        st = clock();
-        data[top] = item;
-        top++;
-        et = clock();
-        cout << "Time taken to push: " << (et - st)*0.001<< "ms" << endl;
+    void push(int item){
+        if(top + 1 <= size){
+            data[top] = item;
+            top++;
+        }
+        else{
+            cout << "Stack is full" << endl;
+        }
+
     }
 
-    T pop(){
-        clock_t st, et;
-        st = clock();
-        T tdata = data[top-1];
+    int pop(){
+        if(top == 0){
+            cout << "Stack is empty" << endl;
+            return 0;
+        }
+        int tdata = data[top-1];
         top--;
-        et = clock();
-        cout << "Time taken to pop: " << (et - st)*0.001<< "ms" << endl;
         return tdata;
     }
 
-    T peek(){
+    int peek(){
         return data[top-1];
     }
 };
 
-int main(){
-    Stack<int> s(10);
-    s.push(1);
-    s.push(2);
-    cout << s.pop() << "\n";
-    s.push(3);
-    cout << s.pop() << "\n";
+long long getTime(std::function<void()> f){
+    auto start = clock();
+    f();
+    auto end = clock();
+    long double duration = end - start;
+    return (duration/CLOCKS_PER_SEC) * 1000000000;
 }
+
+int main(){
+    Stack s(100000000);
+    auto push = [&](){
+        for(int i = 0; i < 100000000; i++){
+            s.push(i);
+        }
+    };
+
+    auto pop = [&](){
+        for(int i = 0; i < 100000000; i++){
+            s.pop();
+        }
+    };
+    cout << "Time taken to push 10000000 elements:" << getTime(push) << "ns" << endl;
+    cout << "Time taken to pop 10000000 elements:" << getTime(pop) << "ns" << endl;
+}
+
+
